@@ -20,7 +20,7 @@ const DiscoverPage = () => {
   useEffect(() => {
     const userDetail = getUserDetail();
     if (!userDetail) {
-      router.push(`/profile?redirect=${encodeURIComponent(router.pathname)}`);
+      router.push(`/profile?redirect=${encodeURIComponent(router.asPath)}`);
     } else {
       setUser(userDetail);
     }
