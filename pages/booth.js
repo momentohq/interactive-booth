@@ -32,13 +32,20 @@ const BoothPage = () => {
 
       setTopicClient(topicClient);
       topicClient.subscribe('conference', 'leaderboard', {
-        onItem: (item) => {console.log(item.value()); updateLeaderboard()},
+        onItem: (item) => { updateLeaderboard(); },
         onError: (e) => {
           console.error(e.errorCode(), e.message());
           toast.error('Failed to get leaderboard updates', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
         }
       });
-      console.log('here')
+
+      topicClient.subscribe('conference', 'racer', {
+        onItem: (item) => { updateRacer(JSON.parse(item.value())) },
+        onError: (e) => {
+          console.error(e.errorCode(), e.message());
+          toast.error('Failed to get race data', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
+        }
+      });
     }
 
     initialize();
@@ -91,6 +98,12 @@ const BoothPage = () => {
     }
     setLeaderboard(board);
   };
+
+  const updateRacer = (racerData) => {
+    if (!isRacing) return;
+
+    
+  }
 
   return (
     <>

@@ -1,11 +1,8 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
 import { Flex, Card, Heading, Image, Text, View } from '@aws-amplify/ui-react';
 import Head from 'next/head';
-import { getUserDetail, getDeviceId } from '../utils/Device';
-import { TopicClient, CacheClient, CredentialProvider, Configurations, CollectionTtl } from '@gomomento/sdk-web';
-import { getAuthToken } from '../utils/Auth';
+import { getUserDetail } from '../utils/Device';
 import { MdWavingHand } from 'react-icons/md';
 
 const ProfilePage = () => {
@@ -16,35 +13,10 @@ const ProfilePage = () => {
 		const user = getUserDetail();
 		if (user) {
 			setUsername(user.username);
+		} else {
+			router.push('/profile');
 		}
 	}, []);
-
-	const handleSave = async () => {
-		const deviceId = await getDeviceId();
-		const user = { username, email, deviceId };
-		localStorage.setItem('user', JSON.stringify(user));
-
-		const token = await getAuthToken();
-		const cacheClient = new CacheClient({
-			configuration: Configurations.Browser.latest(),
-			credentialProvider: CredentialProvider.fromString({ authToken: token }),
-			defaultTtlSeconds: 43200 // 12 hours
-		});
-
-		await cacheClient.dictionarySetField('conference', 'participants', deviceId, username, { ttl: new CollectionTtl(43200) });
-		const topicClient = new TopicClient({
-			configuration: Configurations.Browser.latest(),
-			credentialProvider: CredentialProvider.fromString({ authToken: token })
-		});
-		const r = await topicClient.publish('conference', 'leaderboard', deviceId);
-		console.log(r);
-
-		if (router.query.redirect) {
-			router.push(router.query.redirect);
-		} else {
-			toast.success('Profile updated!', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' })
-		}
-	};
 
 	return (
 		<>

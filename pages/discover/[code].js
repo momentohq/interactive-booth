@@ -6,7 +6,6 @@ import { Flex, Card, Text, Loader, Image, Heading } from '@aws-amplify/ui-react'
 import { getAuthToken } from '../../utils/Auth';
 import { getUserDetail } from '../../utils/Device';
 import { toast } from 'react-toastify';
-import { FaRegFrown } from 'react-icons/fa';
 
 const DiscoverPage = () => {
   const validCodes = ['St9Eb2', 'Xy8Gn2', 'Qp4Jm9', 'Kd7Fp5', 'Ht2Sn6', 'Rf3Gk8', 'Wv6Px4', 'Mj5Lr9', 'Nq9Dt2', 'Zb1Cf7', 'Vg4Hs6', 'Yt7Kx3', 'Pl6Nv9', 'Bf2Rt5', 'Uj3Qw8', 'Ec9Am4', 'Lm8Yx3', 'Go5Vr9', 'Zp3Tk6', 'Qw1Ad7', 'Xc4Fu2'];
