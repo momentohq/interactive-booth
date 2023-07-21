@@ -93,8 +93,8 @@ const DiscoverPage = () => {
           <Flex direction="column" alignItems="center" gap="1em">
             {isLoaded && (<Heading level={4}>{title}</Heading>)}
             {isLoaded && (<Text textAlign="center">{message}</Text>)}
-            {(!isSuccess && isLoaded) && (<FaRegFrown size="10em" color="darkred" />)}
-            {(isSuccess && isLoaded) && (<Image src="/mo-success.png" width="10em" />)}
+            {(!isSuccess && isLoaded) && (<Image src="/mo-sad.png" width="10em" />)}
+            {(isSuccess && isLoaded) && (<Image src="/mo-success.png" width="10em"/>)}
             {!isLoaded && (<Loader size="4em" />)}
           </Flex>
         </Card>
