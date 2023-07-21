@@ -31,13 +31,14 @@ const BoothPage = () => {
       });
 
       setTopicClient(topicClient);
-      topicClient.subscribe('conferece', 'leaderboard', {
-        onItem: () => updateLeaderboard(),
+      topicClient.subscribe('conference', 'leaderboard', {
+        onItem: (item) => {console.log(item.value()); updateLeaderboard()},
         onError: (e) => {
           console.error(e.errorCode(), e.message());
           toast.error('Failed to get leaderboard updates', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
         }
       });
+      console.log('here')
     }
 
     initialize();
@@ -88,7 +89,6 @@ const BoothPage = () => {
       console.error(leaderboardResponse.errorCode(), leaderboardResponse.message());
       toast.error('Could not load leaderboard', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
     }
-    console.log(board);
     setLeaderboard(board);
   };
 
@@ -99,9 +99,9 @@ const BoothPage = () => {
           <title>{router.query.code} Check Code | Momento</title>
         </Head>
         <Flex direction="column" width="100%" alignItems="center" justifyContent="center">
-          <Table title="Scavenger Hunt Leaderboard" variation="striped">
+          <Table title="Scavenger Hunt Leaderboard" variation="striped" highlightOnHover width="90%" boxShadow="medium" backgroundColor="#AEE2B3">
             <TableHead>
-              <TableRow>
+              <TableRow backgroundColor="white">
                 <TableCell as="th">Rank</TableCell>
                 <TableCell as="th" colSpan={3}>Username</TableCell>
                 <TableCell as="th">Score</TableCell>
@@ -109,7 +109,7 @@ const BoothPage = () => {
             </TableHead>
             <TableBody>
               {leaderboard?.map(entry => (
-                <TableRow>
+                <TableRow key={entry.username}>
                   <TableCell>{entry.rank}</TableCell>
                   <TableCell colSpan={3}>{entry.username}</TableCell>
                   <TableCell>{entry.score}</TableCell>
@@ -134,13 +134,13 @@ const theme = {
           },
 
           striped: {
-            backgroundColor: { value: '{colors.blue.10}' },
+            backgroundColor: { value: '{colors.green.10}' },
           },
         },
 
         header: {
-          color: { value: '{colors.blue.80}' },
-          fontSize: { value: '{fontSizes.xl}' },
+          color: { value: '{colors.green.80}' },
+          fontSize: { value: '{fontSizes.large}' },
         },
 
         data: {

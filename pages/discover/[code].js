@@ -2,16 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { TopicClient, CacheClient, CredentialProvider, Configurations, CacheSetFetch, CollectionTtl } from '@gomomento/sdk-web';
-import { Flex, Card, Text, Loader } from '@aws-amplify/ui-react';
+import { Flex, Card, Text, Loader, Image, Heading } from '@aws-amplify/ui-react';
 import { getAuthToken } from '../../utils/Auth';
 import { getUserDetail } from '../../utils/Device';
 import { toast } from 'react-toastify';
-import { FaRegFrown, FaRegSmile } from 'react-icons/fa';
+import { FaRegFrown } from 'react-icons/fa';
 
 const DiscoverPage = () => {
   const validCodes = ['St9Eb2', 'Xy8Gn2', 'Qp4Jm9', 'Kd7Fp5', 'Ht2Sn6', 'Rf3Gk8', 'Wv6Px4', 'Mj5Lr9', 'Nq9Dt2', 'Zb1Cf7', 'Vg4Hs6', 'Yt7Kx3', 'Pl6Nv9', 'Bf2Rt5', 'Uj3Qw8', 'Ec9Am4', 'Lm8Yx3', 'Go5Vr9', 'Zp3Tk6', 'Qw1Ad7', 'Xc4Fu2'];
   const router = useRouter();
   const { code } = router.query;
+  const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [user, setUser] = useState(null);
@@ -30,7 +31,10 @@ const DiscoverPage = () => {
     async function validateCodeAgainstUser() {
       if (!validCodes.includes(code)) {
         setMessage("Not sure how you got here, but it's not quite right. Keep hunting!");
+        setTitle("Who let you in here?");
         setIsSuccess(false);
+        setIsLoaded(true);
+        return;
       }
 
       const token = await getAuthToken();
@@ -38,7 +42,7 @@ const DiscoverPage = () => {
       const cacheClient = new CacheClient({
         configuration: Configurations.Browser.latest(),
         credentialProvider: CredentialProvider.fromString({ authToken: token }),
-        defaultTtlSeconds: 5000 // 12 hours
+        defaultTtlSeconds: 43200 // 12 hours
       });
 
       const setFetchResponse = await cacheClient.setFetch('conference', user.deviceId);
@@ -46,6 +50,7 @@ const DiscoverPage = () => {
         const foundCodes = setFetchResponse.valueArrayString();
         if (foundCodes.includes(code)) {
           setMessage("You've already tagged this code, you rascal. Go find another one!");
+          setTitle("Wait a minute...")
           setIsSuccess(false);
           setIsLoaded(true);
           return;
@@ -67,6 +72,7 @@ const DiscoverPage = () => {
 
       await topicClient.publish('conference', 'leaderboard', user.deviceId);
       setMessage('Nice work! You found one of the codes! Think you can find some more?');
+      setTitle("Hooray!");
       setIsSuccess(true);
       setIsLoaded(true);
     }
@@ -80,14 +86,15 @@ const DiscoverPage = () => {
   return (
     <>
       <Head>
-        <title>{router.query.code} Check Code | Momento</title>
+        <title>Check Scan | Momento</title>
       </Head>
-      <Flex direction="column" width="100%" alignItems="center" justifyContent="center">
-        <Card variation="elevated" borderRadius="large" padding="1.5em 3em" maxWidth="30em">
+      <Flex direction="column" width="100%" alignItems="center">
+        <Card variation="elevated" borderRadius="large" padding="1.5em 3em" width="90%">
           <Flex direction="column" alignItems="center" gap="1em">
+            {isLoaded && (<Heading level={4}>{title}</Heading>)}
             {isLoaded && (<Text textAlign="center">{message}</Text>)}
-            {(!isSuccess && isLoaded) && (<FaRegFrown size="4em" color="darkred" />)}
-            {(isSuccess && isLoaded) && (<FaRegSmile size="4em" color="green" />)}
+            {(!isSuccess && isLoaded) && (<FaRegFrown size="10em" color="darkred" />)}
+            {(isSuccess && isLoaded) && (<Image src="/mo-success.png" width="10em" />)}
             {!isLoaded && (<Loader size="4em" />)}
           </Flex>
         </Card>

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Flex, Heading, Link, Badge, View } from '@aws-amplify/ui-react';
+import { Flex, Heading, Link, Image } from '@aws-amplify/ui-react';
 import { useRouter } from 'next/router';
 import { getUserDetail } from '../utils/Device';
 
 const Header = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
-
+console.log(router)
   useEffect(() => {
     const user = getUserDetail();
     if (user) {
@@ -17,7 +17,7 @@ const Header = () => {
   return (
     <>
       <Flex direction="row" justifyContent="space-between" alignContent="center" padding="10px" backgroundColor="#25392B" boxShadow="medium">
-        <Heading level="3"><Link href='/' textDecoration="none" color="white">Momento</Link></Heading>
+        <Image src="/logo.png" maxHeight="3em" style={{cursor: "pointer"}} onClick={() => router.push('/')}/>
         <Flex
           alignItems="center"
           justifyContent="center"
@@ -26,7 +26,7 @@ const Header = () => {
           width="2.5em"
           height="2.5em"
           style={{cursor: "pointer"}}
-          onClick={() => router.push(`/profile${router.pathname == "/" ? '' : "?redirect=" + router.pathname}`)}>
+          onClick={() => router.push(`/profile${router.pathname == "/" ? '' : "?redirect=" + router.asPath}`)}>
           {username?.charAt(0).toUpperCase()}
         </Flex>
       </Flex>

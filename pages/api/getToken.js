@@ -7,6 +7,7 @@ export default async function handler(req, res) {
     await initializeMomento();
 
     const userId = req.query.user;
+    await cacheClient.delete('conference', `${userId}-token`);
     const cacheResponse = await cacheClient.get('conference', `${userId}-token`);
     if (cacheResponse instanceof CacheGet.Hit) {
       res.status(200).json(JSON.parse(cacheResponse.valueString()));
