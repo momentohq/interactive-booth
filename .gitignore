@@ -1,0 +1,9 @@
+# dependencies
+node_modules/
+.aws-sam/
+
+samconfig.toml
+
+# production
+/.next
+.env*
