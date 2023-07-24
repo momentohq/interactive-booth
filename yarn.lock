@@ -3047,13 +3047,21 @@
     "buffer" "^6.0.3"
     "jwt-decode" "3.1.2"
 
-"@gomomento/sdk-web@^1.28.0":
-  "integrity" "sha512-fUUJbLSakDqaCSLVGEiks99wRSVVXakB7iE1mHxPp0wPOkkugnbpq0eXOPXlIpRf8NLOTvkr3V0I3evhx58gUg=="
-  "resolved" "https://registry.npmjs.org/@gomomento/sdk-web/-/sdk-web-1.28.0.tgz"
-  "version" "1.28.0"
+"@gomomento/sdk-core@1.29.0":
+  "integrity" "sha512-+8DEIDn+NzeJlWOrYHCiqfMNE7SJoNlW+7N2UiISw3oc4E2qo8w/Cya4WQzbxdDLnTdZxGhqyMqW/3Xk58rROg=="
+  "resolved" "https://registry.npmjs.org/@gomomento/sdk-core/-/sdk-core-1.29.0.tgz"
+  "version" "1.29.0"
+  dependencies:
+    "buffer" "^6.0.3"
+    "jwt-decode" "3.1.2"
+
+"@gomomento/sdk-web@^1.29.0":
+  "integrity" "sha512-6gf1VbNO0f4xWXJvxk68Dfvf6N1NrD7Skb7bx4DaV3o9DTk5KMuFLn4jLSDMovdCG9/BX1ZkWr9XZTsfiWJnMA=="
+  "resolved" "https://registry.npmjs.org/@gomomento/sdk-web/-/sdk-web-1.29.0.tgz"
+  "version" "1.29.0"
   dependencies:
     "@gomomento/generated-types-webtext" "0.68.0"
-    "@gomomento/sdk-core" "1.28.0"
+    "@gomomento/sdk-core" "1.29.0"
     "google-protobuf" "3.21.2"
     "grpc-web" "1.4.2"
     "jwt-decode" "3.1.2"

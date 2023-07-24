@@ -12,7 +12,7 @@
     "@aws-amplify/ui-react": "^5.0.5",
     "@faker-js/faker": "^8.0.1",
     "@gomomento/sdk": "^1.28.0",
-    "@gomomento/sdk-web": "^1.28.0",
+    "@gomomento/sdk-web": "^1.29.0",
     "aws-amplify": "^5.3.4",
     "fingerprintjs2": "^2.1.4",
     "next": "^12.2.1",
