@@ -1,24 +1,29 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { TopicClient, CacheClient, CredentialProvider, Configurations, CacheSortedSetFetch, CacheDictionaryFetch } from '@gomomento/sdk-web';
+import { TopicClient, CacheClient, CredentialProvider, Configurations, CacheSortedSetFetch, CacheDictionaryFetch, CacheGet } from '@gomomento/sdk-web';
 import { Flex, Table, TableCell, TableHead, TableRow, TableBody, ThemeProvider, Theme, Heading, Divider, Card, Image } from '@aws-amplify/ui-react';
 import { getAuthToken } from '../utils/Auth';
 import { getUserDetail } from '../utils/Device';
 import { toast } from 'react-toastify';
 import { FaPlayCircle, FaRegStopCircle } from 'react-icons/fa';
 import { VscDebugRestart } from 'react-icons/vsc';
+import Confetti from 'react-confetti';
 
 const BoothPage = () => {
   const router = useRouter();
   const [cacheClient, setCacheClient] = useState(null);
   const [topicClient, setTopicClient] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [isRaceActive, setIsRaceActive] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const [raceMessage, setRaceMessage] = useState('');
   const cacheClientRef = useRef(cacheClient);
   const [racers, setRacers] = useState({ superMo: 0, fauxMo: 0, ko: 0 });
   const racerRef = useRef(racers);
+  const confettiRef = useRef(null);
+  const activeRaceRef = useRef(isRaceActive);
 
   useEffect(() => {
     async function initialize() {
@@ -38,21 +43,6 @@ const BoothPage = () => {
       });
 
       setTopicClient(topicClient);
-      topicClient.subscribe('conference', 'leaderboard', {
-        onItem: (item) => { updateLeaderboard(); },
-        onError: (e) => {
-          console.error(e.errorCode(), e.message());
-          toast.error('Failed to get leaderboard updates', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
-        }
-      });
-
-      topicClient.subscribe('conference', 'racer', {
-        onItem: (item) => { updateRacer(item.value()) },
-        onError: (e) => {
-          console.error(e.errorCode(), e.message());
-          toast.error('Failed to get race data', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
-        }
-      });
     }
 
     const user = getUserDetail();
@@ -64,10 +54,49 @@ const BoothPage = () => {
   }, []);
 
   useEffect(() => {
+    async function load() {
+      if (cacheClient) {
+        updateLeaderboard();
+
+        const raceResponse = await cacheClient.get('conference', 'race');
+        if (raceResponse instanceof CacheGet.Hit) {
+          const activeRace = raceResponse.valueString() == 'true';
+          setIsRaceActive(activeRace);
+          activeRaceRef.current = activeRace;
+        }
+      }
+    }
+
     if (cacheClient) {
-      updateLeaderboard();
+      load()
     }
   }, [cacheClient]);
+
+  useEffect(() => {
+    async function subscribe() {
+      await topicClient.subscribe('conference', 'leaderboard', {
+        onItem: (item) => { updateLeaderboard(); },
+        onError: (e) => {
+          console.error(e.errorCode(), e.message());
+          toast.error('Failed to get leaderboard updates', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
+        }
+      });
+
+      await topicClient.subscribe('conference', 'racer', {
+        onItem: (item) => { updateRacer(item.value()); },
+        onError: (e) => {
+          console.error(e.errorCode(), e.message());
+          toast.error('Failed to get race data', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
+        }
+      });
+
+      setIsSubscribed(true);
+    }
+
+    if (topicClient && !isSubscribed) {
+      subscribe();
+    }
+  }, [topicClient]);
 
   const updateCacheClient = (client) => {
     cacheClientRef.current = client;
@@ -112,24 +141,36 @@ const BoothPage = () => {
   };
 
   const updateRacer = (racer) => {
-    if (!isRaceActive) return;
-
+    if (!activeRaceRef.current) return;
     if (['superMo', 'fauxMo', 'ko'].includes(racer)) {
-      const newRacers = { ...racers, [racer]: racers[racer] += 1 };
+      const newRacers = { ...racerRef.current, [racer]: racerRef.current[racer] += 1 };
       setRacers(newRacers);
       racerRef.current = newRacers;
 
       let isRaceOver = false;
       let winner;
-      if(newRacers.superMo >= 100){
+      if (newRacers.superMo >= 93) {
         isRaceOver = true;
-        winner = 'Mo';        
+        winner = 'Mo';
+      } else if (newRacers.fauxMo >= 93) {
+        isRaceOver = true;
+        winner = 'Faux Mo';
+      } else if (newRacers.ko >= 93) {
+        isRaceOver = true;
+        winner = 'Ko';
+      }
+
+      if (isRaceOver) {
+        toggleRace(false);
+        setRaceMessage(`The winner is ${winner}! Congratulations!`);
+        setShowConfetti(true);
       }
     }
   }
 
   const toggleRace = async (isActive) => {
     setIsRaceActive(isActive);
+    activeRaceRef.current = isActive;
     await cacheClientRef.current.set('conference', 'race', `${isActive}`);
     await topicClient.publish('conference', 'race', `${isActive}`);
   }
@@ -140,6 +181,8 @@ const BoothPage = () => {
     const resetRacers = { superMo: 0, fauxMo: 0, ko: 0 };
     setRacers(resetRacers);
     racerRef.current = resetRacers;
+    setRaceMessage('');
+    setShowConfetti(false);
   };
 
   return (
@@ -153,7 +196,6 @@ const BoothPage = () => {
             <Flex direction="column" gap="1em" basis="48%" height="min-content">
               <Card variation="elevated" backgroundColor="#C4F135">
                 <Heading level={4} textAlign="center">Scavenger Hunt Leaderboard</Heading>
-                <FaRegStopCircle size="1.5em" cursor="pointer" onClick={() => updateRacer('superMo')} />
               </Card>
               <Table title="Scavenger Hunt Leaderboard" variation="striped" highlightOnHover boxShadow="medium" backgroundColor="#AEE2B3" >
                 <TableHead>
@@ -175,7 +217,15 @@ const BoothPage = () => {
               </Table>
             </Flex>
             <Divider orientation="vertical" size="large" />
-            <Flex direction="column" basis="48%">
+            <Flex direction="column" basis="48%" ref={confettiRef} position="relative">
+              {showConfetti && (
+                <Confetti
+                  width={confettiRef.current?.offsetWidth}
+                  height={confettiRef.current?.offsetHeight}
+                  numberOfPieces={500}
+                  style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+                />
+              )}
               <Card variation="elevated" backgroundColor="#C4F135">
                 <Flex direction="row" alignItems="center" justifyContent="space-between">
                   <VscDebugRestart size="1.5em" cursor="pointer" onClick={restartRace} />
@@ -183,7 +233,7 @@ const BoothPage = () => {
                   {isRaceActive ? <FaRegStopCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(false)} /> : <FaPlayCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(true)} />}
                 </Flex>
               </Card>
-              <Card variation="elevated" width="100%" backgroundColor="#C2B2A9">
+              <Card variation="elevated" id="track" width="100%" backgroundColor="#C2B2A9">
                 <Flex direction="row" gap=".5em" justifyContent="center">
                   <Divider orientation="vertical" size="small" basis="2%" />
                   <Flex direction="column" gap="1em" basis="96%">
@@ -198,6 +248,19 @@ const BoothPage = () => {
                   <Divider orientation="vertical" size="small" basis="2%" />
                 </Flex>
               </Card>
+              {raceMessage && (
+                <Card variation="elevated" width="100%">
+                  <Heading level={5} textAlign="center" >{raceMessage}</Heading>
+                </Card>
+              )}
+              <Flex alignItems="center" width="100%" justifyContent="center">
+                <Card variation='elevated' width="fit-content" marginTop="5em" borderRadius="large">
+                  <Flex direction="column" gap="1em" justifyContent="center" alignItems="center" width="100%">
+                    <Image src="/join-qr.png" width="15em" />
+                    <Heading level={5}>Join the race!</Heading>
+                  </Flex>
+                </Card>
+              </Flex>
             </Flex>
           </Flex>
         </Flex>

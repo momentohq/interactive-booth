@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { Flex, Card, Heading, Button, Text, Image } from '@aws-amplify/ui-react';
 import Head from 'next/head';
 import { TopicClient, CacheClient, CredentialProvider, Configurations, CacheGet } from '@gomomento/sdk-web';
 import { getAuthToken } from '../utils/Auth';
+import { getUserDetail } from '../utils/Device';
 import { toast } from 'react-toastify';
 
 const RacerPage = () => {
+  const router = useRouter();
   const [topicClient, setTopicClient] = useState(null);
   const [isRaceActive, setIsRaceActive] = useState(false);
 
@@ -31,7 +34,12 @@ const RacerPage = () => {
       }
     };
 
-    setupTopicClient();
+    const user = getUserDetail();
+    if (!user) {
+      router.push('/profile?redirect=/racer');
+    } else {
+      setupTopicClient();
+    }
   }, []);
 
   useEffect(() => {
@@ -69,10 +77,10 @@ const RacerPage = () => {
                 <Image name="superMo" src="/mo-profile.png" width="10em" borderRadius="50%" boxShadow="large" />
               </Button>
               <Button isDisabled={!isRaceActive} variation="link" name="fauxMo" onClick={(e) => moveRacer(e.target.name)} >
-                <Image name="fauxMo" src="/faux-mo-profile.png" width="10em" borderRadius="50%" boxShadow="large"/>
+                <Image name="fauxMo" src="/faux-mo-profile.png" width="10em" borderRadius="50%" boxShadow="large" />
               </Button>
               <Button isDisabled={!isRaceActive} variation="link" name="ko" onClick={(e) => moveRacer(e.target.name)} >
-                <Image name="ko" src="/ko-profile.png" width="10em" borderRadius="50%" boxShadow="large"/>
+                <Image name="ko" src="/ko-profile.png" width="10em" borderRadius="50%" boxShadow="large" />
               </Button>
             </Flex>
           </Flex>

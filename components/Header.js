@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Flex, Heading, Link, Image } from '@aws-amplify/ui-react';
+import { Flex, Image } from '@aws-amplify/ui-react';
 import { useRouter } from 'next/router';
 import { getUserDetail } from '../utils/Device';
 
 const Header = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
-console.log(router)
   useEffect(() => {
     const user = getUserDetail();
     if (user) {

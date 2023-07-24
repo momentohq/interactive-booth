@@ -18,13 +18,15 @@ const DiscoverPage = () => {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    const userDetail = getUserDetail();
-    if (!userDetail) {
-      router.push(`/profile?redirect=${encodeURIComponent(router.asPath)}`);
-    } else {
-      setUser(userDetail);
+    if (code) {
+      const userDetail = getUserDetail();
+      if (!userDetail) {
+        router.push(`/profile?redirect=/discover/${code}`);
+      } else {
+        setUser(userDetail);
+      }
     }
-  }, []);
+  }, [code]);
 
   useEffect(() => {
     async function validateCodeAgainstUser() {
@@ -61,8 +63,8 @@ const DiscoverPage = () => {
         return;
       }
 
-      await cacheClient.setAddElement('conference', user.deviceId, code, { ttl: new CollectionTtl(43200)});
-      await cacheClient.sortedSetIncrementScore('conference', 'leaderboard', user.deviceId, 1, { ttl: new CollectionTtl(43200)});
+      await cacheClient.setAddElement('conference', user.deviceId, code, { ttl: new CollectionTtl(43200) });
+      await cacheClient.sortedSetIncrementScore('conference', 'leaderboard', user.deviceId, 1, { ttl: new CollectionTtl(43200) });
 
       const topicClient = new TopicClient({
         configuration: Configurations.Browser.latest(),
@@ -93,7 +95,7 @@ const DiscoverPage = () => {
             {isLoaded && (<Heading level={4}>{title}</Heading>)}
             {isLoaded && (<Text textAlign="center">{message}</Text>)}
             {(!isSuccess && isLoaded) && (<Image src="/mo-sad.png" width="10em" />)}
-            {(isSuccess && isLoaded) && (<Image src="/mo-success.png" width="10em"/>)}
+            {(isSuccess && isLoaded) && (<Image src="/mo-success.png" width="10em" />)}
             {!isLoaded && (<Loader size="4em" />)}
           </Flex>
         </Card>
