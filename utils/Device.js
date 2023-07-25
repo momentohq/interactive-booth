@@ -1,13 +1,18 @@
-import Fingerprint2 from 'fingerprintjs2';
+import short from 'short-uuid';
 
-export const getDeviceId = () => {
-  return new Promise((resolve, reject) => {
-    Fingerprint2.get((components) => {
-      const values = components.map((component) => component.value);
-      const deviceId = Fingerprint2.x64hash128(values.join(''), 31);
-      resolve(deviceId);
-    });
-  });
+export const generateUserId = () => {
+  let user = getUserDetail();
+  if(!user){
+    user = {}
+  }
+
+  if(!user.id){
+    user.id = short.generate();
+  }
+
+  localStorage.setItem('user', JSON.stringify(user));
+
+  return user.id;
 };
 
 export const getUserDetail = () => {

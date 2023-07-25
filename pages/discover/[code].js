@@ -4,7 +4,7 @@ import Head from 'next/head';
 import { TopicClient, CacheClient, CredentialProvider, Configurations, CacheSetFetch, CollectionTtl } from '@gomomento/sdk-web';
 import { Flex, Card, Text, Loader, Image, Heading } from '@aws-amplify/ui-react';
 import { getAuthToken } from '../../utils/Auth';
-import { getUserDetail } from '../../utils/Device';
+import { getUserDetail, generateUserId } from '../../utils/Device';
 import { toast } from 'react-toastify';
 
 const DiscoverPage = () => {
@@ -23,6 +23,10 @@ const DiscoverPage = () => {
       if (!userDetail) {
         router.push(`/profile?redirect=/discover/${code}`);
       } else {
+        if(!userDetail.id){
+          const id = generateUserId();
+          userDetail.id = id;
+        }
         setUser(userDetail);
       }
     }
@@ -46,13 +50,13 @@ const DiscoverPage = () => {
         defaultTtlSeconds: 43200 // 12 hours
       });
 
-      const setFetchResponse = await cacheClient.setFetch('conference', user.deviceId);
+      const setFetchResponse = await cacheClient.setFetch('conference', user.id);
       if (setFetchResponse instanceof CacheSetFetch.Hit) {
         const foundCodes = setFetchResponse.valueArrayString();
         if (foundCodes.includes(code)) {
-          setMessage("You've already tagged this code, you rascal. Go find another one!");
-          setTitle("Wait a minute...")
-          setIsSuccess(false);
+          setMessage("Nice work! You found one of the codes! Think you can find some more?");
+          setTitle("Hooray!")
+          setIsSuccess(true);
           setIsLoaded(true);
           return;
         }
@@ -63,15 +67,15 @@ const DiscoverPage = () => {
         return;
       }
 
-      await cacheClient.setAddElement('conference', user.deviceId, code, { ttl: new CollectionTtl(43200) });
-      await cacheClient.sortedSetIncrementScore('conference', 'leaderboard', user.deviceId, 1, { ttl: new CollectionTtl(43200) });
+      await cacheClient.setAddElement('conference', user.id, code, { ttl: new CollectionTtl(43200) });
+      await cacheClient.sortedSetIncrementScore('conference', 'leaderboard', user.id, 1, { ttl: new CollectionTtl(43200) });
 
       const topicClient = new TopicClient({
         configuration: Configurations.Browser.latest(),
         credentialProvider: CredentialProvider.fromString({ authToken: token })
       });
 
-      await topicClient.publish('conference', 'leaderboard', user.deviceId);
+      await topicClient.publish('conference', 'leaderboard', user.id);
       setMessage('Nice work! You found one of the codes! Think you can find some more?');
       setTitle("Hooray!");
       setIsSuccess(true);

@@ -2,26 +2,30 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Flex, Card, TextField, Heading, Button, Text } from '@aws-amplify/ui-react';
 import Head from 'next/head';
-import { getUserDetail, getDeviceId } from '../utils/Device';
+import { getUserDetail } from '../utils/Device';
 import { TopicClient, CacheClient, CredentialProvider, Configurations, CollectionTtl } from '@gomomento/sdk-web';
 import { getAuthToken } from '../utils/Auth';
+import short from 'short-uuid';
 
 const ProfilePage = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [id, setId] = useState(short.generate());
 
   useEffect(() => {
     const user = getUserDetail();
     if(user){
       setEmail(user.email);
       setUsername(user.username);
+      if(user.id){
+        setId(user.id);
+      }
     }
   }, []);
 
   const handleSave = async () => {
-    const deviceId = await getDeviceId();
-    const user = { username, email, deviceId };
+    const user = { username, email, id };
     localStorage.setItem('user', JSON.stringify(user));
 
     const token = await getAuthToken();
@@ -31,12 +35,12 @@ const ProfilePage = () => {
       defaultTtlSeconds: 43200 // 12 hours
     });    
 
-    await cacheClient.dictionarySetField('conference', 'participants', deviceId, username, { ttl: new CollectionTtl(43200)});
+    await cacheClient.dictionarySetField('conference', 'participants', id, username, { ttl: new CollectionTtl(43200)});
     const topicClient = new TopicClient({
       configuration: Configurations.Browser.latest(),
       credentialProvider: CredentialProvider.fromString({ authToken: token })
     });
-    await topicClient.publish('conference', 'leaderboard', deviceId);
+    await topicClient.publish('conference', 'leaderboard', id);
 
     if (router.query.redirect) {
       router.push(router.query.redirect);

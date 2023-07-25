@@ -1,4 +1,4 @@
-import { getUserDetail } from "./Device";
+import { getUserDetail, generateUserId } from "./Device";
 
 export const getAuthToken = async () => {
   const storedCredentials = sessionStorage.getItem('credentials');
@@ -12,7 +12,11 @@ export const getAuthToken = async () => {
   }
 
   const user = getUserDetail();
-  const response = await fetch(`/api/getToken?user=${user.deviceId}`);
+  if(!user.id){
+    const id = generateUserId();
+    user.id = id;
+  }
+  const response = await fetch(`/api/getToken?user=${user.id}`);
   const data = await response.json();
   sessionStorage.setItem('credentials', JSON.stringify(data));
   return data.token;
