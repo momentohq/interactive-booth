@@ -233,7 +233,7 @@ const BoothPage = () => {
                   {isRaceActive ? <FaRegStopCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(false)} /> : <FaPlayCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(true)} />}
                 </Flex>
               </Card>
-              <Card variation="elevated" id="track" width="100%" backgroundColor="#C2B2A9">
+              <Card variation="elevated" id="track" width="100%" backgroundColor="#F4DACD">
                 <Flex direction="row" gap=".5em" justifyContent="center">
                   <Divider orientation="vertical" size="small" basis="2%" />
                   <Flex direction="column" gap="1em" basis="96%">
@@ -242,7 +242,7 @@ const BoothPage = () => {
                     <Divider size="small" />
                     <Image key="fauxMo" src="fauxmo.png" left={`${racerRef.current.fauxMo}%`} width="4em" position="relative" />
                     <Divider size="small" />
-                    <Image key="ko" src="ko.png" left={`${racerRef.current.ko}%`} width="3em" position="relative" />
+                    <Image key="ko" src="ko.png" left={`${racerRef.current.ko}%`} width="4em" position="relative" />
                     <Divider size="small" />
                   </Flex>
                   <Divider orientation="vertical" size="small" basis="2%" />
