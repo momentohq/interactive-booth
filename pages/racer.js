@@ -74,13 +74,22 @@ const RacerPage = () => {
             <Text fontSize=".9rem" textAlign="center"><i>{!isRaceActive ? 'When the race starts, press the button for your racer as fast as you can!' : 'Now is your chance, press the button! Go! Go! Go!'}</i></Text>
             <Flex direction="row" gap="1em" wrap="wrap" alignItems="center" justifyContent="center">
               <Button isDisabled={!isRaceActive} variation="link" name="superMo" onClick={(e) => moveRacer(e.target.name)} >
-                <Image name="superMo" src="/mo-profile.png" width="45%" borderRadius="50%" boxShadow="large" />
+                <Flex name="superMo" direction="column" alignItems="center" justifyContent="center" gap=".3em">
+                  <Image name="superMo" src="/mo-profile.png" width="45%" borderRadius="50%" boxShadow="large" />
+                  <Text name="superMo">Mo the Squirrel</Text>
+                </Flex>
               </Button>
               <Button isDisabled={!isRaceActive} variation="link" name="fauxMo" onClick={(e) => moveRacer(e.target.name)} >
-                <Image name="fauxMo" src="/faux-mo-profile.png" width="45%" borderRadius="50%" boxShadow="large" />
+                <Flex name="fauxMo" direction="column" alignItems="center" justifyContent="center" gap=".3em">
+                  <Image name="fauxMo" src="/faux-mo-profile.png" width="45%" borderRadius="50%" boxShadow="large" />
+                  <Text name="fauxMo">Faux Mo</Text>
+                </Flex>
               </Button>
               <Button isDisabled={!isRaceActive} variation="link" name="ko" onClick={(e) => moveRacer(e.target.name)} >
-                <Image name="ko" src="/ko-profile.png" width="45%" borderRadius="50%" boxShadow="large" />
+                <Flex name="ko" direction="column" alignItems="center" justifyContent="center" gap=".3em">
+                  <Image name="ko" src="/ko-profile.png" width="45%" borderRadius="50%" boxShadow="large" />
+                  <Text name="ko">Ko the Koala</Text>
+                </Flex>
               </Button>
             </Flex>
           </Flex>
