@@ -51,6 +51,8 @@ const DiscoverPage = () => {
       });
 
       const setFetchResponse = await cacheClient.setFetch('conference', user.id);
+      // update users in the dictionary with the correct username
+      await cacheClient.dictionarySetField('conference', 'participants', user.id, user.username, { ttl: new CollectionTtl(43200)});
       if (setFetchResponse instanceof CacheSetFetch.Hit) {
         const foundCodes = setFetchResponse.valueArrayString();
         if (foundCodes.includes(code)) {
