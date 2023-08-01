@@ -20,13 +20,9 @@ const DiscoverPage = () => {
   useEffect(() => {
     if (code) {
       const userDetail = getUserDetail();
-      if (!userDetail) {
+      if (!userDetail || !userDetail.username) {
         router.push(`/profile?redirect=/discover/${code}`);
       } else {
-        if(!userDetail.id){
-          const id = generateUserId();
-          userDetail.id = id;
-        }
         setUser(userDetail);
       }
     }
@@ -42,17 +38,14 @@ const DiscoverPage = () => {
         return;
       }
 
-      const token = await getAuthToken();
-
+      const authToken = await getAuthToken();
       const cacheClient = new CacheClient({
         configuration: Configurations.Browser.latest(),
-        credentialProvider: CredentialProvider.fromString({ authToken: token }),
-        defaultTtlSeconds: 43200 // 12 hours
+        credentialProvider: CredentialProvider.fromString({ authToken }),
+        defaultTtlSeconds: 32400 // 9 hours
       });
 
-      const setFetchResponse = await cacheClient.setFetch('conference', user.id);
-      // update users in the dictionary with the correct username
-      await cacheClient.dictionarySetField('conference', 'participants', user.id, user.username, { ttl: new CollectionTtl(43200)});
+      const setFetchResponse = await cacheClient.setFetch('conference', user.username);
       if (setFetchResponse instanceof CacheSetFetch.Hit) {
         const foundCodes = setFetchResponse.valueArrayString();
         if (foundCodes.includes(code)) {
@@ -69,15 +62,15 @@ const DiscoverPage = () => {
         return;
       }
 
-      await cacheClient.setAddElement('conference', user.id, code, { ttl: new CollectionTtl(43200) });
-      await cacheClient.sortedSetIncrementScore('conference', 'leaderboard', user.id, 1, { ttl: new CollectionTtl(43200) });
+      await cacheClient.setAddElement('conference', user.username, code, { ttl: new CollectionTtl(43200) });
+      await cacheClient.sortedSetIncrementScore('conference', 'leaderboard', user.username, 1, { ttl: new CollectionTtl(43200) });
 
       const topicClient = new TopicClient({
         configuration: Configurations.Browser.latest(),
-        credentialProvider: CredentialProvider.fromString({ authToken: token })
+        credentialProvider: CredentialProvider.fromString({ authToken })
       });
 
-      await topicClient.publish('conference', 'leaderboard', user.id);
+      await topicClient.publish('conference', 'leaderboard', user.username);
       setMessage('Nice work! You found one of the codes! Think you can find some more?');
       setTitle("Hooray!");
       setIsSuccess(true);
@@ -87,7 +80,6 @@ const DiscoverPage = () => {
     if (code && user) {
       validateCodeAgainstUser();
     }
-
   }, [code, user]);
 
   return (

@@ -27,9 +27,9 @@ const ProfilePage = () => {
 				<Card variation="elevated" borderRadius="large" padding="1.5em 3em" maxWidth="90%" marginTop="1em">
 					<Flex direction="column" gap="1em">
 						<Heading level={4}>Hey there! <MdWavingHand /></Heading>
-						<Text>We are so happy you've joined us at THAT conference! Guess what.... you're in for a real treat, <b>{username}</b>!</Text>
-						<Text>Each day, we will hide 5 new QR codes around the conference for you to find. All you have to do is scan them with your phone and you're done!</Text>
-						<Text>Once you find all 5 QR codes, you'll be entered into our raffle to win a super cool lego set!</Text>
+						<Text>We are so happy you've joined us at {process.env.NEXT_PUBLIC_CONFERENCE}! Guess what.... you're in for a real treat, <b>{username}</b>!</Text>
+						<Text>We've hidden QR codes around the conference for you to find. All you have to do is scan them with your phone and you're done!</Text>
+						<Text>Once you find all the QR codes, you'll be entered into our raffle to win a super cool {process.env.NEXT_PUBLIC_PRIZE}!</Text>
 						<Text>So get that camera out and ninja around the conference floor. See you out there!</Text>
 						<View width="100%" textAlign="center">
 							<Image src="/mo-ninja.png" marginTop="1em" width="auto" maxWidth="8em" />

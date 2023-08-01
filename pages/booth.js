@@ -19,11 +19,16 @@ const BoothPage = () => {
   const [isRaceActive, setIsRaceActive] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [raceMessage, setRaceMessage] = useState('');
+  const [showRace, setShowRace] = useState(false);
   const cacheClientRef = useRef(cacheClient);
   const [racers, setRacers] = useState({ superMo: 0, fauxMo: 0, ko: 0 });
   const racerRef = useRef(racers);
   const confettiRef = useRef(null);
   const activeRaceRef = useRef(isRaceActive);
+
+  useEffect(() => {
+    setShowRace(router.query?.race?.toLowerCase() == 'true');
+  }, [router.query]);
 
   useEffect(() => {
     async function initialize() {
@@ -109,29 +114,13 @@ const BoothPage = () => {
     if (leaderboardResponse instanceof CacheSortedSetFetch.Hit) {
       const results = leaderboardResponse.valueArrayStringElements();
       if (results.length) {
-        const participantsResponse = await cacheClientRef.current.dictionaryFetch('conference', 'participants');
-        if (participantsResponse instanceof CacheDictionaryFetch.Hit) {
-          const participants = participantsResponse.valueRecord();
-          board = results.map((result, index) => {
-            const participant = participants[result.value];
-            return {
-              rank: index + 1,
-              username: participant ?? result.value,
-              score: result.score
-            };
-          });
-        } else if (participantsResponse instanceof CacheDictionaryFetch.Miss) {
-          board = results.map((result, index) => {
-            return {
-              rank: index + 1,
-              username: result.value,
-              score: result.score
-            };
-          });
-        } else if (participantsResponse instanceof CacheDictionaryFetch.Error) {
-          console.error(participantsResponse.errorCode(), participantsResponse.message());
-          toast.error('Could not load leaderboard', { position: 'top-right', autoClose: 10000, draggable: false, hideProgressBar: true, theme: 'colored' });
-        }
+        board = results.map((result, index) => {
+          return {
+            rank: index + 1,
+            username: result.value,
+            score: result.score
+          };
+        });        
       }
     } else if (leaderboardResponse instanceof CacheSortedSetFetch.Error) {
       console.error(leaderboardResponse.errorCode(), leaderboardResponse.message());
@@ -192,8 +181,8 @@ const BoothPage = () => {
           <title>Momento Booth</title>
         </Head>
         <Flex direction="column" width="100%" alignItems="center" justifyContent="center">
-          <Flex direction="row" alignContent="space-between" width="100%" padding="0em 2em" height="92vh">
-            <Flex direction="column" gap="1em" basis="48%" height="min-content">
+          <Flex direction="row" alignContent="space-between" justifyContent="center" width="100%" padding="0em 2em" height="92vh">
+            <Flex direction="column" gap="1em" basis={showRace ? "48%" : "80%"} height="min-content">
               <Card variation="elevated" backgroundColor="#C4F135">
                 <Heading level={4} textAlign="center">Scavenger Hunt Leaderboard</Heading>
               </Card>
@@ -216,52 +205,56 @@ const BoothPage = () => {
                 </TableBody>
               </Table>
             </Flex>
-            <Divider orientation="vertical" size="large" />
-            <Flex direction="column" basis="48%" ref={confettiRef} position="relative">
-              {showConfetti && (
-                <Confetti
-                  width={confettiRef.current?.offsetWidth}
-                  height={confettiRef.current?.offsetHeight}
-                  numberOfPieces={500}
-                  style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
-                />
-              )}
-              <Card variation="elevated" backgroundColor="#C4F135">
-                <Flex direction="row" alignItems="center" justifyContent="space-between">
-                  <VscDebugRestart size="1.5em" cursor="pointer" onClick={restartRace} />
-                  <Heading level={4} textAlign="center" >Momento Racers</Heading>
-                  {isRaceActive ? <FaRegStopCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(false)} /> : <FaPlayCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(true)} />}
-                </Flex>
-              </Card>
-              <Card variation="elevated" id="track" width="100%" backgroundColor="#F4DACD">
-                <Flex direction="row" gap=".5em" justifyContent="center">
-                  <Divider orientation="vertical" size="small" basis="2%" />
-                  <Flex direction="column" gap="1em" basis="96%">
-                    <Divider size="small" />
-                    <Image key="superMo" src="mo.png" left={`${racerRef.current.superMo}%`} width="4em" position="relative" />
-                    <Divider size="small" />
-                    <Image key="fauxMo" src="fauxmo.png" left={`${racerRef.current.fauxMo}%`} width="4em" position="relative" />
-                    <Divider size="small" />
-                    <Image key="ko" src="ko.png" left={`${racerRef.current.ko}%`} width="4em" position="relative" />
-                    <Divider size="small" />
+            {showRace && (
+              <>
+                <Divider orientation="vertical" size="large" />
+                <Flex direction="column" basis="48%" ref={confettiRef} position="relative">
+                  {showConfetti && (
+                    <Confetti
+                      width={confettiRef.current?.offsetWidth}
+                      height={confettiRef.current?.offsetHeight}
+                      numberOfPieces={500}
+                      style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+                    />
+                  )}
+                  <Card variation="elevated" backgroundColor="#C4F135">
+                    <Flex direction="row" alignItems="center" justifyContent="space-between">
+                      <VscDebugRestart size="1.5em" cursor="pointer" onClick={restartRace} />
+                      <Heading level={4} textAlign="center" >Momento Racers</Heading>
+                      {isRaceActive ? <FaRegStopCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(false)} /> : <FaPlayCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(true)} />}
+                    </Flex>
+                  </Card>
+                  <Card variation="elevated" id="track" width="100%" backgroundColor="#F4DACD">
+                    <Flex direction="row" gap=".5em" justifyContent="center">
+                      <Divider orientation="vertical" size="small" basis="2%" />
+                      <Flex direction="column" gap="1em" basis="96%">
+                        <Divider size="small" />
+                        <Image key="superMo" src="mo.png" left={`${racerRef.current.superMo}%`} width="4em" position="relative" />
+                        <Divider size="small" />
+                        <Image key="fauxMo" src="fauxmo.png" left={`${racerRef.current.fauxMo}%`} width="4em" position="relative" />
+                        <Divider size="small" />
+                        <Image key="ko" src="ko.png" left={`${racerRef.current.ko}%`} width="4em" position="relative" />
+                        <Divider size="small" />
+                      </Flex>
+                      <Divider orientation="vertical" size="small" basis="2%" />
+                    </Flex>
+                  </Card>
+                  {raceMessage && (
+                    <Card variation="elevated" width="100%">
+                      <Heading level={5} textAlign="center" >{raceMessage}</Heading>
+                    </Card>
+                  )}
+                  <Flex alignItems="center" width="100%" justifyContent="center">
+                    <Card variation='elevated' width="fit-content" marginTop="5em" borderRadius="large">
+                      <Flex direction="column" gap="1em" justifyContent="center" alignItems="center" width="100%">
+                        <Image src="/join-qr.png" width="15em" />
+                        <Heading level={5}>Join the race!</Heading>
+                      </Flex>
+                    </Card>
                   </Flex>
-                  <Divider orientation="vertical" size="small" basis="2%" />
                 </Flex>
-              </Card>
-              {raceMessage && (
-                <Card variation="elevated" width="100%">
-                  <Heading level={5} textAlign="center" >{raceMessage}</Heading>
-                </Card>
-              )}
-              <Flex alignItems="center" width="100%" justifyContent="center">
-                <Card variation='elevated' width="fit-content" marginTop="5em" borderRadius="large">
-                  <Flex direction="column" gap="1em" justifyContent="center" alignItems="center" width="100%">
-                    <Image src="/join-qr.png" width="15em" />
-                    <Heading level={5}>Join the race!</Heading>
-                  </Flex>
-                </Card>
-              </Flex>
-            </Flex>
+              </>
+            )}
           </Flex>
         </Flex>
       </ThemeProvider>
