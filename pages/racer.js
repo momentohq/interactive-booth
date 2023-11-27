@@ -33,13 +33,7 @@ const RacerPage = () => {
         setIsRaceActive(raceStatusResponse.valueString() == "true");
       }
     };
-
-    const user = getUserDetail();
-    if (!user) {
-      router.push('/profile?redirect=/racer');
-    } else {
-      setupTopicClient();
-    }
+    setupTopicClient();
   }, []);
 
   useEffect(() => {

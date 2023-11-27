@@ -120,7 +120,7 @@ const BoothPage = () => {
             username: result.value,
             score: result.score
           };
-        });        
+        });
       }
     } else if (leaderboardResponse instanceof CacheSortedSetFetch.Error) {
       console.error(leaderboardResponse.errorCode(), leaderboardResponse.message());
@@ -182,7 +182,7 @@ const BoothPage = () => {
         </Head>
         <Flex direction="column" width="100%" alignItems="center" justifyContent="center">
           <Flex direction="row" alignContent="space-between" justifyContent="center" width="100%" padding="0em 2em" height="92vh">
-            <Flex direction="column" gap="1em" basis={showRace ? "48%" : "80%"} height="min-content">
+            {/* <Flex direction="column" gap="1em" basis={showRace ? "48%" : "80%"} height="min-content">
               <Card variation="elevated" backgroundColor="#C4F135">
                 <Heading level={4} textAlign="center">Scavenger Hunt Leaderboard</Heading>
               </Card>
@@ -204,10 +204,10 @@ const BoothPage = () => {
                   ))}
                 </TableBody>
               </Table>
-            </Flex>
-            {showRace && (
+            </Flex> */}
+            {/* {showRace && (
               <>
-                <Divider orientation="vertical" size="large" />
+                <Divider orientation="vertical" size="large" /> */}
                 <Flex direction="column" basis="48%" ref={confettiRef} position="relative">
                   {showConfetti && (
                     <Confetti
@@ -253,8 +253,8 @@ const BoothPage = () => {
                     </Card>
                   </Flex>
                 </Flex>
-              </>
-            )}
+              {/* </>
+            )} */}
           </Flex>
         </Flex>
       </ThemeProvider>
