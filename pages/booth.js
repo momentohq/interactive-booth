@@ -50,12 +50,7 @@ const BoothPage = () => {
       setTopicClient(topicClient);
     }
 
-    const user = getUserDetail();
-    if (!user) {
-      router.push('/profile?redirect=/booth');
-    } else {
-      initialize();
-    }
+    initialize();
   }, []);
 
   useEffect(() => {
@@ -208,52 +203,52 @@ const BoothPage = () => {
             {/* {showRace && (
               <>
                 <Divider orientation="vertical" size="large" /> */}
-                <Flex direction="column" basis="48%" ref={confettiRef} position="relative">
-                  {showConfetti && (
-                    <Confetti
-                      width={confettiRef.current?.offsetWidth}
-                      height={confettiRef.current?.offsetHeight}
-                      numberOfPieces={500}
-                      style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
-                    />
-                  )}
-                  <Card variation="elevated" backgroundColor="#C4F135">
-                    <Flex direction="row" alignItems="center" justifyContent="space-between">
-                      <VscDebugRestart size="1.5em" cursor="pointer" onClick={restartRace} />
-                      <Heading level={4} textAlign="center" >Momento Racers</Heading>
-                      {isRaceActive ? <FaRegStopCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(false)} /> : <FaPlayCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(true)} />}
-                    </Flex>
-                  </Card>
-                  <Card variation="elevated" id="track" width="100%" backgroundColor="#F4DACD">
-                    <Flex direction="row" gap=".5em" justifyContent="center">
-                      <Divider orientation="vertical" size="small" basis="2%" />
-                      <Flex direction="column" gap="1em" basis="96%">
-                        <Divider size="small" />
-                        <Image key="superMo" src="mo.png" left={`${racerRef.current.superMo}%`} width="4em" position="relative" />
-                        <Divider size="small" />
-                        <Image key="fauxMo" src="fauxmo.png" left={`${racerRef.current.fauxMo}%`} width="4em" position="relative" />
-                        <Divider size="small" />
-                        <Image key="ko" src="ko.png" left={`${racerRef.current.ko}%`} width="4em" position="relative" />
-                        <Divider size="small" />
-                      </Flex>
-                      <Divider orientation="vertical" size="small" basis="2%" />
-                    </Flex>
-                  </Card>
-                  {raceMessage && (
-                    <Card variation="elevated" width="100%">
-                      <Heading level={5} textAlign="center" >{raceMessage}</Heading>
-                    </Card>
-                  )}
-                  <Flex alignItems="center" width="100%" justifyContent="center">
-                    <Card variation='elevated' width="fit-content" marginTop="5em" borderRadius="large">
-                      <Flex direction="column" gap="1em" justifyContent="center" alignItems="center" width="100%">
-                        <Image src="/join-qr.png" width="15em" />
-                        <Heading level={5}>Join the race!</Heading>
-                      </Flex>
-                    </Card>
-                  </Flex>
+            <Flex direction="column" basis="48%" ref={confettiRef} position="relative">
+              {showConfetti && (
+                <Confetti
+                  width={confettiRef.current?.offsetWidth}
+                  height={confettiRef.current?.offsetHeight}
+                  numberOfPieces={500}
+                  style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}
+                />
+              )}
+              <Card variation="elevated" backgroundColor="#C4F135">
+                <Flex direction="row" alignItems="center" justifyContent="space-between">
+                  <VscDebugRestart size="1.5em" cursor="pointer" onClick={restartRace} />
+                  <Heading level={4} textAlign="center" >Momento Racers</Heading>
+                  {isRaceActive ? <FaRegStopCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(false)} /> : <FaPlayCircle size="1.5em" cursor="pointer" onClick={() => toggleRace(true)} />}
                 </Flex>
-              {/* </>
+              </Card>
+              <Card variation="elevated" id="track" width="100%" backgroundColor="#F4DACD">
+                <Flex direction="row" gap=".5em" justifyContent="center">
+                  <Divider orientation="vertical" size="small" basis="2%" />
+                  <Flex direction="column" gap="1em" basis="96%">
+                    <Divider size="small" />
+                    <Image key="superMo" src="mo.png" left={`${racerRef.current.superMo}%`} width="4em" position="relative" />
+                    <Divider size="small" />
+                    <Image key="fauxMo" src="fauxmo.png" left={`${racerRef.current.fauxMo}%`} width="4em" position="relative" />
+                    <Divider size="small" />
+                    <Image key="ko" src="ko.png" left={`${racerRef.current.ko}%`} width="4em" position="relative" />
+                    <Divider size="small" />
+                  </Flex>
+                  <Divider orientation="vertical" size="small" basis="2%" />
+                </Flex>
+              </Card>
+              {raceMessage && (
+                <Card variation="elevated" width="100%">
+                  <Heading level={5} textAlign="center" >{raceMessage}</Heading>
+                </Card>
+              )}
+              <Flex alignItems="center" width="100%" justifyContent="center">
+                <Card variation='elevated' width="fit-content" marginTop="5em" borderRadius="large">
+                  <Flex direction="column" gap="1em" justifyContent="center" alignItems="center" width="100%">
+                    <Image src="/join-qr.png" width="15em" />
+                    <Heading level={5}>Join the race!</Heading>
+                  </Flex>
+                </Card>
+              </Flex>
+            </Flex>
+            {/* </>
             )} */}
           </Flex>
         </Flex>

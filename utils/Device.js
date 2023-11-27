@@ -2,11 +2,11 @@ import short from 'short-uuid';
 
 export const generateUserId = () => {
   let user = getUserDetail();
-  if(!user){
+  if (!user) {
     user = {}
   }
 
-  if(!user.id){
+  if (!user.id) {
     user.id = short.generate();
   }
 
@@ -17,7 +17,7 @@ export const generateUserId = () => {
 
 export const getUserDetail = () => {
   const user = localStorage.getItem('user');
-  if(user){
+  if (user) {
     return JSON.parse(user);
-  }
+  } else { return {} }
 };
