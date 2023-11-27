@@ -1,64 +1,37 @@
-# Momento Chat Application
+# Momento's Interactive Booth
 
-Momento Chat is a real-time chat application built with Next.js and the Momento SDK. It provides a simple and intuitive chat interface for users to communicate in different chat rooms using [Momento Topics](https://docs.momentohq.com/introduction/momento-topics) as a broadcast WebSocket and [Momento Cache](https://docs.momentohq.com/) as a temporary data store.
+Welcome! If you're here, you were probably pointed this way from a blog post. That's cool. 
 
-## Features
+Looking for where this is implemented? [Look no further](https://conference.momentolabs.io).
 
-- Real-time communication
-- Support for multiple chat rooms
-- User authentication*
-- Message persistence
+## So..... what is it?
 
-## How It Works
+When Momento attends conferences, we like to have a little fun. So we built this interactive web app to engage conference go-ers and showcase some of what Momento has to offer.
 
-![Picture of the different Momento components in play to make the chat work](./public/how-it-works.png)
+### Temporary data storage
 
-When a user logs into the application, an auth endpoint is hit to receive a temporary Momento auth token. Once the auth token is received, the application initializes the Momento Web SDK and subscribes to a topic for chat room creation. When a user creates a new chat room, a message will be published to the topic and indicate to all other browsers with the chat room list open to refresh. The browsers will pull from a [Momento set cache item](https://docs.momentohq.com/develop/datatypes#sets) containing the list of chat rooms available. 
+No time like the present, am I right?! When you log onto the app, we save your information to a cache for 24 hours. After that, it gets automatically deleted. Everything that happens in our game (that I'm about to explain) is also stored in said cache and deleted after a day as well.
 
-When entering a chat room, the browser will first initialize the cache client and pull the chat history from a [Momento list cache item](https://docs.momentohq.com/develop/datatypes#lists). The list contains an ordered sequence of all messages sent in that chat room. After the chat history is fetched, it subscribes to the chat topic to be notified when a new message is sent. When a message is sent, the topic `onItem` event handler is triggered and it will add the new message to the view.
+Since we're at a conference, we don't need any of the game data for longer than a day, so we said "¡adios, database!" and opted to store everything remotely in Momento. This means we don't have any data cleanup to do between conferences, nice!
 
-When a message is sent, the browser will publish to the chat topic and push the message to the list cache item in order to maintain the chat history. 
+### Racing game
 
-After 1 hour, the room and chat history will expire and be automatically deleted from the cache.
+We've built in a racing game to this app. If you navigate to our [racer page](https://conference.momentolabs.io/racer) you'll be presented with three Momento-themed characters (the page is optimized for mobile, just FYI). Someone working the conference booth will have [the booth page open](https://conference.momentolabs.io/booth?race=true) and start the race for you.
 
-## Authentication
+As many people as you want can play, and everyone just needs to press a character as fast as they can as many times as they can. Each press will move their character on the booth page just a little bit. When the first character gets the end, the race is over!
 
-Authentication is a crucial part of this application. It ensures that only authorized users can access the chat services, and also provides a mechanism for controlling the scope of actions that a user can perform.
+This is built using both Momento Cache and Topics. The cache stores the game state. Basically just an `isRacing` flag. This sets the initial state of the racer page. If the game is racing all the buttons will be enabled. If it's waiting for someone to start it, the buttones will be disabled.
 
-### Token Vending Machine
+Whenever you press a character on the racer screen, a message is published via Momento Topics. This message is subscribed to by the racing page and will move the corresponding character over 1 pixel for every message it receives. When it moves a certain number of times, the race is over and the game state is updated.
 
-This example chat application uses a concept known as a Token Vending Machine (TVM) for handling user authentication. In this model, the server generates a temporary authorization token when a user logs in. This token is then passed to the client, which uses it to initialize the Momento SDK.
+That's it! The entire game is built without needing additional backend services. It's done completely through the front-end!
 
-The temporary authorization token has scoped permissions, meaning it only grants the level of access necessary for the user to perform their intended actions within the application. For instance, a user may be granted permissions to read and write messages in a specific chat room, but not to do administrative tasks like creating or deleting an entire cache.
+### Scavenger hunt
 
-### Token Expiration
+We've also added a scavenger hunt in there. One of the fun things we do at conferences is hide a bunch of QR codes around the venue. Users will walk around with their phones, scanning the QR codes as they find them. Once a code is scanned, their score is updated on the booth leaderboard automatically. 
 
-The temporary authorization token has an expiry time of one hour. Once the token expires, the user will need to obtain a new token to continue interacting with the application. This is an important security measure that helps to limit the potential damage if a token is compromised. By ensuring that tokens are short-lived, we reduce the window of opportunity for an attacker to use a stolen token.
+Users cannot scan a code more than once and get credit for it. You also can't make up codes and monkey around with the url for bonus points. These are server-backed codes that are validated as you find them.
 
-By using a combination of a TVM, scoped permissions, and token expiration, we ensure robust and secure user authentication while maintaining a user-friendly experience. This approach strikes a balance between security and usability, allowing users to communicate safely and effectively.
+Once again, this is built without needing a backend service, it's done completely in the user interface. Using Momento cache, we can create a leaderboard by using a [sorted set cache item](https://docs.momentohq.com/develop/datatypes#sorted-sets). This will automatically handle the scores and sorting for us. 
 
-## Installation
-
-Before you can run the application, make sure that you have Node.js installed on your machine. If you don't have Node.js installed, you can download it from [here](https://nodejs.org/).
-
-After cloning the repository, navigate to the project's directory and install the dependencies by running the following command:
-
-```bash
-npm install
-```
-
-## Running the Application
-
-First, you will need to create your auth mechanism and token vending machine. After you create the auth, you can add a `.env` file to the root directory with an environment variable name of `NEXT_PUBLIC_AUTH_BASE_URL` that contains the base url to your API.
-
-After setting up the environment variables, you can start the application by running the following command:
-
-```bash
-npm run dev
-```
-
-You should now be able to access the application at `http://localhost:3000`.
-
-## Usage
-
-When you open the application, you will automatically be signed in and issued an auth token. The app will randomly generate a name for you. When you create a new chat room, the chat will receive a randomly generated name from the Periodic Table of Elements (why not?). Enter a chat and type away!
+We use Momento Topics to send a message to the leaderboard page to refresh whenever somebody finds a new code. Easy enough!
